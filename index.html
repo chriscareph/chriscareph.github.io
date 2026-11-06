@@ -49,29 +49,7 @@ function calculate(){
  result.textContent=pesos(amount)+' per payment × '+count+' scheduled payments = '+pesos(total)+' total scheduled payments. Contract price: '+pesos(p.contract)+'. Difference: '+pesos(total-(p.contract||0))+'.';
 }
 calcPlan.onchange=calculate;document.getElementById('calcFrequency').onchange=calculate;if(plans.length){calcPlan.value=plans[0].name;calculate()}if(D.config.PRESENTATION_URL){const match=D.config.PRESENTATION_URL.match(/\/presentation\/d\/([\w-]+)/);if(match){const slideIds=['chris_slide_0','chris_slide_1','chris_slide_2','chris_slide_3','chris_slide_4','chris_slide_5','chris_slide_6','chris_slide_7','chris_slide_8'];let current=0;const deck=document.getElementById('deck');const f=document.createElement('iframe');f.title='Sales presentation';f.style.pointerEvents='auto';f.style.display='block';f.style.border='0';f.style.boxShadow='none';f.style.width='calc(100% + 5px)';f.style.height='auto';f.style.minHeight='0';f.style.aspectRatio='16/9';f.setAttribute('tabindex','-1');const controls=document.createElement('div');controls.style.cssText='display:none';const prev=document.createElement('button');prev.type='button';prev.className='btn';prev.textContent='‹ Previous';const count=document.createElement('span');count.setAttribute('aria-live','polite');const next=document.createElement('button');next.type='button';next.className='btn';next.textContent='Next ›';function showSlide(){f.src='https://docs.google.com/presentation/d/e/2PACX-1vRkKp24b_41o3eDgIfwvly6DAc3vCGmdUsAWUA-cXLnHB2C6eV16HT_yIafgxLT-BLQedb7Li3EDhFY/pubembed?start=false&loop=false&delayms=3000';count.textContent='Slide '+(current+1)+' of '+slideIds.length;prev.disabled=current===0;next.disabled=current===slideIds.length-1}prev.onclick=()=>{if(current>0){current--;showSlide()}};next.onclick=()=>{if(current<slideIds.length-1){current++;showSlide()}};controls.append(prev,count,next);const viewport=document.createElement('div');viewport.style.cssText='overflow:hidden;border-radius:12px;background:#f6faf5;line-height:0;aspect-ratio:16/9;position:relative';viewport.appendChild(f);deck.replaceChildren(viewport,controls);showSlide()}else document.getElementById('deck').textContent='Presentation link is invalid.'}else document.getElementById('deck').innerHTML='<div class="banner">Agent setup pending: add the Google Slides presentation URL in Code.gs.</div>';}
-</script><script>
-(function(){
- const endpoint='https://script.google.com/macros/s/AKfycbxJa2utZOMU3vsQEdNheJdlh8CPZhrbZ5PcoddcRKdsm36_BgmCkq22T39jVzPQQwY/exec';
- const render=window.chrisCareReady;let ready=false,attempt=0;
- window.chrisCareReady=function(data){if(ready)return;ready=true;render(data);};
- function load(){
-  if(ready)return;
-  attempt++;
-  const script=document.createElement('script');
-  let resolved=false;
-  const timeout=setTimeout(function(){if(!ready&&!resolved){resolved=true;script.remove();retry();}},10000);
-  function retry(){clearTimeout(timeout);if(ready)return;
-   if(attempt<4){document.getElementById('cards').textContent='Loading available plans… Retrying connection ('+attempt+'/4).';setTimeout(load,attempt*2000);}
-   else document.getElementById('cards').textContent='Plans are taking longer to load. Please refresh or ask Chris for assistance.';
-  }
-  script.onerror=function(){if(resolved)return;resolved=true;script.remove();retry();};
-  script.onload=function(){if(ready){resolved=true;clearTimeout(timeout);}};
-  script.src=endpoint+'?callback=chrisCareReady&retry='+attempt+'&t='+Date.now();
-  document.head.appendChild(script);
- }
- load();
-})();
-</script><script>
+</script><script src="https://script.google.com/macros/s/AKfycbxJa2utZOMU3vsQEdNheJdlh8CPZhrbZ5PcoddcRKdsm36_BgmCkq22T39jVzPQQwY/exec?callback=chrisCareReady" onerror="document.getElementById('cards').textContent='Plans temporarily unavailable. Please contact Chris directly.'"></script><script>
 (function(){
 const form=document.getElementById('leadForm'),button=document.getElementById('send'),result=document.getElementById('result');
 const endpoint=form.action;
