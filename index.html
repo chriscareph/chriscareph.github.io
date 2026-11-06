@@ -48,5 +48,47 @@ function calculate(){
  if(!p||!amount){result.textContent='Select a plan and available payment schedule to calculate.';return}
  result.textContent=pesos(amount)+' per payment × '+count+' scheduled payments = '+pesos(total)+' total scheduled payments. Contract price: '+pesos(p.contract)+'. Difference: '+pesos(total-(p.contract||0))+'.';
 }
-calcPlan.onchange=calculate;document.getElementById('calcFrequency').onchange=calculate;if(plans.length){calcPlan.value=plans[0].name;calculate()}if(D.config.PRESENTATION_URL){const match=D.config.PRESENTATION_URL.match(/\/presentation\/d\/([\w-]+)/);if(match){const slideIds=['chris_slide_0','chris_slide_1','chris_slide_2','chris_slide_3','chris_slide_4','chris_slide_5','chris_slide_6','chris_slide_7','chris_slide_8'];let current=0;const deck=document.getElementById('deck');const f=document.createElement('iframe');f.title='Sales presentation';f.style.pointerEvents='auto';f.style.display='block';f.style.border='0';f.style.boxShadow='none';f.style.width='calc(100% + 5px)';f.style.height='auto';f.style.minHeight='0';f.style.aspectRatio='16/9';f.setAttribute('tabindex','-1');const controls=document.createElement('div');controls.style.cssText='display:none';const prev=document.createElement('button');prev.type='button';prev.className='btn';prev.textContent='‹ Previous';const count=document.createElement('span');count.setAttribute('aria-live','polite');const next=document.createElement('button');next.type='button';next.className='btn';next.textContent='Next ›';function showSlide(){f.src='https://docs.google.com/presentation/d/e/2PACX-1vRkKp24b_41o3eDgIfwvly6DAc3vCGmdUsAWUA-cXLnHB2C6eV16HT_yIafgxLT-BLQedb7Li3EDhFY/pubembed?start=false&loop=false&delayms=3000';count.textContent='Slide '+(current+1)+' of '+slideIds.length;prev.disabled=current===0;next.disabled=current===slideIds.length-1}prev.onclick=()=>{if(current>0){current--;showSlide()}};next.onclick=()=>{if(current<slideIds.length-1){current++;showSlide()}};controls.append(prev,count,next);const viewport=document.createElement('div');viewport.style.cssText='overflow:hidden;border-radius:12px;background:#f6faf5;line-height:0;aspect-ratio:16/9;position:relative';viewport.appendChild(f);deck.append(viewport,controls);showSlide()}else document.getElementById('deck').textContent='Presentation link is invalid.'}else document.getElementById('deck').innerHTML='<div class="banner">Agent setup pending: add the Google Slides presentation URL in Code.gs.</div>';document.getElementById('leadForm').addEventListener('submit',()=>{document.getElementById('send').disabled=true;document.getElementById('result').textContent='Opening secure confirmation page...';});}
-</script><script src="https://script.google.com/macros/s/AKfycbxJa2utZOMU3vsQEdNheJdlh8CPZhrbZ5PcoddcRKdsm36_BgmCkq22T39jVzPQQwY/exec?callback=chrisCareReady" onerror="document.getElementById('cards').textContent='Plans temporarily unavailable. Please contact Chris directly.'"></script></body></html>
+calcPlan.onchange=calculate;document.getElementById('calcFrequency').onchange=calculate;if(plans.length){calcPlan.value=plans[0].name;calculate()}if(D.config.PRESENTATION_URL){const match=D.config.PRESENTATION_URL.match(/\/presentation\/d\/([\w-]+)/);if(match){const slideIds=['chris_slide_0','chris_slide_1','chris_slide_2','chris_slide_3','chris_slide_4','chris_slide_5','chris_slide_6','chris_slide_7','chris_slide_8'];let current=0;const deck=document.getElementById('deck');const f=document.createElement('iframe');f.title='Sales presentation';f.style.pointerEvents='auto';f.style.display='block';f.style.border='0';f.style.boxShadow='none';f.style.width='calc(100% + 5px)';f.style.height='auto';f.style.minHeight='0';f.style.aspectRatio='16/9';f.setAttribute('tabindex','-1');const controls=document.createElement('div');controls.style.cssText='display:none';const prev=document.createElement('button');prev.type='button';prev.className='btn';prev.textContent='‹ Previous';const count=document.createElement('span');count.setAttribute('aria-live','polite');const next=document.createElement('button');next.type='button';next.className='btn';next.textContent='Next ›';function showSlide(){f.src='https://docs.google.com/presentation/d/e/2PACX-1vRkKp24b_41o3eDgIfwvly6DAc3vCGmdUsAWUA-cXLnHB2C6eV16HT_yIafgxLT-BLQedb7Li3EDhFY/pubembed?start=false&loop=false&delayms=3000';count.textContent='Slide '+(current+1)+' of '+slideIds.length;prev.disabled=current===0;next.disabled=current===slideIds.length-1}prev.onclick=()=>{if(current>0){current--;showSlide()}};next.onclick=()=>{if(current<slideIds.length-1){current++;showSlide()}};controls.append(prev,count,next);const viewport=document.createElement('div');viewport.style.cssText='overflow:hidden;border-radius:12px;background:#f6faf5;line-height:0;aspect-ratio:16/9;position:relative';viewport.appendChild(f);deck.append(viewport,controls);showSlide()}else document.getElementById('deck').textContent='Presentation link is invalid.'}else document.getElementById('deck').innerHTML='<div class="banner">Agent setup pending: add the Google Slides presentation URL in Code.gs.</div>';}
+</script><script src="https://script.google.com/macros/s/AKfycbxJa2utZOMU3vsQEdNheJdlh8CPZhrbZ5PcoddcRKdsm36_BgmCkq22T39jVzPQQwY/exec?callback=chrisCareReady" onerror="document.getElementById('cards').textContent='Plans temporarily unavailable. Please contact Chris directly.'"></script><script>
+(function(){
+const form=document.getElementById('leadForm'),button=document.getElementById('send'),result=document.getElementById('result');
+const endpoint=form.action;
+const frame=document.createElement('iframe');
+frame.name='ccSubmissionFrame';frame.title='Inquiry submission';frame.hidden=true;document.body.appendChild(frame);
+const field=document.createElement('input');field.type='hidden';field.name='requestId';form.appendChild(field);
+let busy=false;
+form.addEventListener('submit',function(e){
+ if(busy){e.preventDefault();return;}
+ if(!window.crypto||!crypto.getRandomValues){e.preventDefault();result.textContent='Unable to submit securely. Please contact Chris.';return;}
+ const b=new Uint8Array(16);crypto.getRandomValues(b);
+ const token=Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
+ field.value=token;form.target=frame.name;busy=true;button.disabled=true;
+ result.textContent='Submitting inquiry. Please wait for confirmation...';
+ let attempts=0,done=false;
+ function finish(message,success){
+  if(done)return;done=true;busy=false;button.disabled=false;
+  result.textContent=message;
+  if(success){form.reset();result.scrollIntoView({behavior:'smooth',block:'center'});}
+ }
+ function check(){
+  if(done)return;
+  if(++attempts>20){finish('Confirmation is delayed. Your inquiry may already be recorded. Please contact Chris before submitting again.',false);return;}
+  const callback='ccStatus'+Date.now()+'_'+attempts;
+  const script=document.createElement('script');
+  let received=false;
+  const cleanup=()=>{script.remove();window[callback]=undefined;};
+  window[callback]=function(data){
+   received=true;cleanup();
+   if(data&&data.state==='success')finish('Inquiry received! Reference: '+data.reference+'. '+data.message,true);
+   else if(data&&data.state==='error')finish('Inquiry could not be processed. Please contact Chris.',false);
+   else setTimeout(check,1500);
+  };
+  script.onerror=()=>{cleanup();setTimeout(check,1500);};
+  script.src=endpoint+'?action=status&requestId='+token+'&callback='+callback;
+  document.head.appendChild(script);
+  setTimeout(()=>{if(!received&&window[callback]){cleanup();setTimeout(check,1500);}},5000);
+ }
+ setTimeout(check,2000);
+});
+})();
+</script></body></html>
