@@ -49,7 +49,48 @@ function calculate(){
  result.textContent=pesos(amount)+' per payment × '+count+' scheduled payments = '+pesos(total)+' total scheduled payments. Contract price: '+pesos(p.contract)+'. Difference: '+pesos(total-(p.contract||0))+'.';
 }
 calcPlan.onchange=calculate;document.getElementById('calcFrequency').onchange=calculate;if(plans.length){calcPlan.value=plans[0].name;calculate()}if(D.config.PRESENTATION_URL){const match=D.config.PRESENTATION_URL.match(/\/presentation\/d\/([\w-]+)/);if(match){const slideIds=['chris_slide_0','chris_slide_1','chris_slide_2','chris_slide_3','chris_slide_4','chris_slide_5','chris_slide_6','chris_slide_7','chris_slide_8'];let current=0;const deck=document.getElementById('deck');const f=document.createElement('iframe');f.title='Sales presentation';f.style.pointerEvents='auto';f.style.display='block';f.style.border='0';f.style.boxShadow='none';f.style.width='calc(100% + 5px)';f.style.height='auto';f.style.minHeight='0';f.style.aspectRatio='16/9';f.setAttribute('tabindex','-1');const controls=document.createElement('div');controls.style.cssText='display:none';const prev=document.createElement('button');prev.type='button';prev.className='btn';prev.textContent='‹ Previous';const count=document.createElement('span');count.setAttribute('aria-live','polite');const next=document.createElement('button');next.type='button';next.className='btn';next.textContent='Next ›';function showSlide(){f.src='https://docs.google.com/presentation/d/e/2PACX-1vRkKp24b_41o3eDgIfwvly6DAc3vCGmdUsAWUA-cXLnHB2C6eV16HT_yIafgxLT-BLQedb7Li3EDhFY/pubembed?start=false&loop=false&delayms=3000';count.textContent='Slide '+(current+1)+' of '+slideIds.length;prev.disabled=current===0;next.disabled=current===slideIds.length-1}prev.onclick=()=>{if(current>0){current--;showSlide()}};next.onclick=()=>{if(current<slideIds.length-1){current++;showSlide()}};controls.append(prev,count,next);const viewport=document.createElement('div');viewport.style.cssText='overflow:hidden;border-radius:12px;background:#f6faf5;line-height:0;aspect-ratio:16/9;position:relative';viewport.appendChild(f);deck.replaceChildren(viewport,controls);showSlide()}else document.getElementById('deck').textContent='Presentation link is invalid.'}else document.getElementById('deck').innerHTML='<div class="banner">Agent setup pending: add the Google Slides presentation URL in Code.gs.</div>';}
-</script><script>chrisCareReady({"config":{"PRESENTATION_URL":"https://docs.google.com/presentation/d/1BrizbNlzEq9MsgR48KLQ7BlJZSa448Ldv1QoW_bLXPA/edit"},"plans":[{"name":"St. George","category":"Traditional","description":"Wood Casket, Single Top (Split Lid Cover), Full Glass, Elegant Interiors, corners and handles","contract":53000,"annual":10600,"semiAnnual":5620,"quarterly":2915,"monthly":1000,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. Gregory","category":"Traditional","description":"Metal Casket, Single Top (Split Lid Cover), Full Glass, Elegant Interiors, corners and handles","contract":57000,"annual":11400,"semiAnnual":6040,"quarterly":3135,"monthly":1100,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. Claire","category":"Traditional","description":"Metal Casket, Single Top (half lid cover), Half Glass, Elegant Interiors, corners and handles","contract":98500,"annual":19700,"semiAnnual":10440,"quarterly":5420,"monthly":1870,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. Bernadette","category":"Traditional","description":"Metal Casket, Single Top (full lid cover), Full Glass, Elegant Interiors, corners and handles","contract":125000,"annual":25000,"semiAnnual":13250,"quarterly":6875,"monthly":2375,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. Anne","category":"Traditional","description":"Metal Casket, Double Top (split and full lid covers), Full Glass, Elegant Interiors, corners and handles","contract":157500,"annual":31500,"semiAnnual":16695,"quarterly":8660,"monthly":3000,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. Jude","category":"Cremation","description":"Metal Casket, Single Top (half lid cover), Half Glass, Elegant Interiors, corners and handles - Marble Urn","contract":99000,"annual":19800,"semiAnnual":10495,"quarterly":5445,"monthly":1880,"years":5,"approved":true,"verified":"2026-11-06"},{"name":"St. James","category":"Cremation","description":"Marble Urn - Cremation Before Viewing","contract":66000,"annual":13200,"semiAnnual":6995,"quarterly":3630,"monthly":1255,"years":5,"approved":true,"verified":"2026-11-06"}]});</script><script>
+</script><script>
+(function(){
+ 'use strict';
+ const endpoint='https://script.google.com/macros/s/AKfycbx6gptoBvX3oOMsTGIe-CrdXZS89_LXKCGkL7WJcgNpUtvQ2c7tzeDxK0BFrDubm6FhOw/exec';
+ const status=document.getElementById('cards');
+ const compare=document.getElementById('compareResults');
+ const calc=document.getElementById('calcResult');
+ const calcPlan=document.getElementById('calcPlan');
+ const interest=document.getElementById('interest');
+ let finished=false;
+ const script=document.createElement('script');
+ const timer=setTimeout(fail,12000);
+ function fail(){
+   if(finished)return;finished=true;clearTimeout(timer);script.remove();
+   window.chrisCarePricingReady=undefined;
+   status.textContent='Pricing temporarily unavailable. Please contact Chris for current approved rates.';
+   if(compare)compare.textContent='Comparison unavailable until current prices can be retrieved.';
+   if(calc)calc.textContent='Calculator unavailable until current prices can be retrieved.';
+   if(calcPlan){calcPlan.replaceChildren();calcPlan.disabled=true;}
+   if(interest){interest.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Ask Chris about current plans';interest.appendChild(o);interest.disabled=true;}
+ }
+ window.chrisCarePricingReady=function(data){
+   if(finished)return;
+   const valid=data&&data.ok===true&&data.schemaVersion===1&&
+     typeof data.generatedAt==='string'&&!isNaN(Date.parse(data.generatedAt))&&
+     Array.isArray(data.plans)&&data.plans.length>0&&
+     data.plans.every(p=>p&&typeof p.name==='string'&&p.name.trim()&&
+       typeof p.category==='string'&&p.category.trim()&&
+       typeof p.description==='string'&&p.description.trim()&&
+       Number.isInteger(p.years)&&p.years>0&&
+       typeof p.verified==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(p.verified)&&
+       ['contract','annual','semiAnnual','quarterly','monthly'].every(k=>typeof p[k]==='number'&&Number.isFinite(p[k])&&p[k]>0));
+   if(!valid){fail();return;}
+   finished=true;clearTimeout(timer);script.remove();window.chrisCarePricingReady=undefined;
+   try{chrisCareReady({config:{PRESENTATION_URL:'https://docs.google.com/presentation/d/1BrizbNlzEq9MsgR48KLQ7BlJZSa448Ldv1QoW_bLXPA/edit'},plans:data.plans.map(p=>({...p,approved:true}))});}
+   catch(err){console.error('Pricing display failed',err);status.textContent='Pricing temporarily unavailable. Please contact Chris for current approved rates.';}
+ };
+ script.onerror=fail;
+ script.src=endpoint+'?callback=chrisCarePricingReady&request='+Date.now();
+ document.head.appendChild(script);
+})();
+</script><script>
 (function(){
 const form=document.getElementById('leadForm'),button=document.getElementById('send'),result=document.getElementById('result');
 const endpoint=form.action;
@@ -72,7 +113,7 @@ form.addEventListener('submit',function(e){
  }
  function check(){
   if(done)return;
-  if(++attempts>30){finish('Your inquiry may have been recorded. Check the server receipt below; do not submit again until Chris confirms.',false);button.disabled=true;frame.hidden=false;frame.style.cssText='display:block;width:100%;max-width:700px;height:350px;border:1px solid #cddbd0;border-radius:12px;margin:16px auto';frame.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(++attempts>12){finish('Your inquiry was sent, but confirmation could not be retrieved. It may already be recorded. Please contact Chris before submitting again.',false);button.disabled=true;return;}
   const callback='ccStatus'+Date.now()+'_'+attempts;
   const script=document.createElement('script');
   let received=false;
